@@ -5,18 +5,20 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+//@EnableMethodSecurity
 public class SecurityConfig {
 
     // Refer the spring security in youtube channel : EmbarkX | Learn Programming
@@ -25,11 +27,18 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests((auths) -> auths.anyRequest()
+                .authorizeHttpRequests((auths) -> auths
+                                .requestMatchers("/h2-console/**").permitAll()
+                                .anyRequest()
 //                        .requestMatchers("/public/**")
                         .authenticated()
-                )
-                .httpBasic(withDefaults());
+                );
+
+                //h2 db do
+                http.headers(hds->hds.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin).disable());
+                http.csrf(csrf ->csrf.ignoringRequestMatchers("/h2-console/**"));
+
+        http.httpBasic(withDefaults());
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();
     }
