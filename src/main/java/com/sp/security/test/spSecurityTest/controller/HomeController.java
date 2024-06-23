@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class HomeController {
 
-//    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping(value = "/test")
     public String m1 (){
         return "public method access";
